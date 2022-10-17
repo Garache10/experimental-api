@@ -1,20 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    
+  async create(createUserDto: CreateUserDto) {
+    const newUser: UserDto = {
+      ...createUserDto,
+      Id: randomUUID(),
+      IsPremium: false,
+      Active: true,
+      CreatedAt: new Date(),
+      CreatedBy: 'experimental_api',
+      UpdatedAt: new Date(),
+      UpdatedBy: 'experimental_api',
+    };
+    const saved = await this.userRepository.save(newUser);
+    return saved;
   }
 
   async findAll() {
@@ -22,15 +34,29 @@ export class UsersService {
     return users;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { Id: id },
+    });
+    if (!user) throw new NotFoundException("the user doesn't exists");
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const userdb = await this.findOne(id);
+    const updatedUser: UserDto = {
+      ...userdb,
+      ...updateUserDto,
+      UpdatedAt: new Date(),
+      UpdatedBy: 'experimental_api',
+    };
+    await this.userRepository.update(id, updatedUser);
+    return updatedUser;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    const userdb = await this.findOne(id);
+    await this.userRepository.delete(id);
+    return { message: `user with id ${id} was deleted`, userdb };
   }
 }
