@@ -1,7 +1,7 @@
 import { WeblogInterface } from 'src/common/interfaces/weblog.interface';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('tblUser')
+@Entity('exp.tblUser')
 export class UserEntity implements WeblogInterface {
 
   @PrimaryGeneratedColumn('uuid')
@@ -36,7 +36,7 @@ export class UserEntity implements WeblogInterface {
   CreatedBy: string;
 
   @Column()
-  UpdateAt: Date;
+  UpdatedAt: Date;
   
   @Column()
   UpdatedBy: string;

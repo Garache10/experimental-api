@@ -2,6 +2,6 @@ export interface WeblogInterface {
   Active: boolean;
   CreatedAt: Date;
   CreatedBy: string;
-  UpdateAt: Date;
+  UpdatedAt: Date;
   UpdatedBy: string;
 }
