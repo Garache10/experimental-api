@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -29,8 +30,13 @@ export class UsersService {
     return saved;
   }
 
-  async findAll() {
-    const users = await this.userRepository.find();
+  async findAll(paginationDto: PaginationDto) {
+    const { take = 10, skip = 0 } = paginationDto;
+    const users = await this.userRepository.find({
+      order: { CreatedAt: "DESC" },
+      take,
+      skip,
+    });
     return users;
   }
 
